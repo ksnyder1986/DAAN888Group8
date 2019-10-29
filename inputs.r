@@ -1,6 +1,13 @@
 library(doBy)
+library(dplyr)
 
 summary(new_reviews)
+
+user_list <- summaryBy(stars ~ user_id, data=new_reviews, FUN = c(length))
+user_list <- user_list[user_list$stars.length > 3,]
+new_reviews <- new_reviews %>% filter(user_id %in% user_list$user_id)
+
+summaryby()
 
 new_reviews$service_rating <- new_reviews$service*(new_reviews$stars+new_reviews$ave_sentiment)
 new_reviews$speed_rating <- new_reviews$speed*(new_reviews$stars+new_reviews$ave_sentiment)
@@ -16,11 +23,13 @@ new_reviews$U_Service <- NA
 new_reviews$U_Speed <- NA
 new_reviews$U_Cleanliness <- NA
 new_reviews$U_Environment <- NA
+new_reviews$U_Taste <- NA
 new_reviews$U_Location <- NA
 new_reviews$U_Eastern_Asian <- NA
 new_reviews$U_Japanese <- NA
 new_reviews$U_Mexican <- NA
 new_reviews$U_Indian <- NA
+new_reviews$U_Italian <- NA
 new_reviews$U_Southeast_Asian <- NA
 new_reviews$U_American <- NA
 new_reviews$U_Middle_Eastern <- NA
@@ -29,6 +38,7 @@ new_reviews$U_Mediterranean <- NA
 new_reviews$U_European <- NA
 new_reviews$U_Fastfood <- NA
 new_reviews$U_Pizza <- NA
+new_reviews$U_Seafood <- NA
 new_reviews$U_Breakfast <- NA
 new_reviews$U_Cafe <- NA
 new_reviews$U_Diners <- NA
@@ -50,53 +60,46 @@ for (row in 1:nrow(new_reviews))
   sub_new_reviews <- new_reviews[new_reviews$user_id == user_id & new_reviews$review_id != review_id,]
   if (nrow(sub_new_reviews) > 0)
   {
-    user_revs <- summaryBy(service+speed+cleanliness+taste+
-                           environment+location+Eastern_Asian+Japanese+
-                           Mexican+Indian+Southeast_Asian+American+Italian+
-                           Middle_Eastern+Latin_American+Mediterranean+
-                           European+Fastfood+Seafood+Pizza+Breakfast+
-                           Cafe+Diners+Bars+other
-                         ~ user_id, data=sub_new_reviews, FUN=c(mean,sd,length))
-    
-    new_reviews[row,]$U_Service <- user_revs$service.mean
-    new_reviews[row,]$U_Speed <- user_revs$speed.mean
-    new_reviews[row,]$U_Cleanliness <- user_revs$cleanliness.mean
-    new_reviews[row,]$U_Environment <- user_revs$environment.mean
-    new_reviews[row,]$U_Taste <- user_revs$taste.mean
-    new_reviews[row,]$U_Location <- user_revs$location.mean
-    new_reviews[row,]$U_Eastern_Asian <- user_revs$Eastern_Asian.mean
-    new_reviews[row,]$U_Japanese <- user_revs$Japanese.mean
-    new_reviews[row,]$U_Mexican <- user_revs$Mexican.mean
-    new_reviews[row,]$U_Indian <- user_revs$Indian.mean
-    new_reviews[row,]$U_Southeast_Asian <- user_revs$Southeast_Asian.mean
-    new_reviews[row,]$U_American <- user_revs$American.mean
-    new_reviews[row,]$U_Italian <- user_revs$Italian.mean
-    new_reviews[row,]$U_Middle_Eastern <- user_revs$Middle_Eastern.mean
-    new_reviews[row,]$U_Latin_American <- user_revs$Latin_American.mean
-    new_reviews[row,]$U_Mediterranean <- user_revs$Mediterranean.mean
-    new_reviews[row,]$U_European <- user_revs$European.mean
-    new_reviews[row,]$U_Fastfood <- user_revs$Fastfood.mean
-    new_reviews[row,]$U_Seafood <- user_revs$Seafood.mean
-    new_reviews[row,]$U_Pizza <- user_revs$Pizza.mean
-    new_reviews[row,]$U_Breakfast <- user_revs$Breakfast.mean
-    new_reviews[row,]$U_Cafe <- user_revs$Cafe.mean
-    new_reviews[row,]$U_Diners <- user_revs$Diners.mean
-    new_reviews[row,]$U_Bars <- user_revs$Bars.mean
+
+    new_reviews[row,]$U_Service <- mean(sub_new_reviews$service)
+    new_reviews[row,]$U_Speed <- mean(sub_new_reviews$speed)
+    new_reviews[row,]$U_Cleanliness <- mean(sub_new_reviews$cleanliness)
+    new_reviews[row,]$U_Environment <- mean(sub_new_reviews$environment)
+    new_reviews[row,]$U_Taste <- mean(sub_new_reviews$taste)
+    new_reviews[row,]$U_Location <- mean(sub_new_reviews$location)
+    new_reviews[row,]$U_Eastern_Asian <- mean(sub_new_reviews$Eastern_Asian)
+    new_reviews[row,]$U_Japanese <- mean(sub_new_reviews$Japanese)
+    new_reviews[row,]$U_Mexican <- mean(sub_new_reviews$Mexican)
+    new_reviews[row,]$U_Indian <- mean(sub_new_reviews$Indian)
+    new_reviews[row,]$U_Southeast_Asian <- mean(sub_new_reviews$Southeast_Asian)
+    new_reviews[row,]$U_American <- mean(sub_new_reviews$American)
+    new_reviews[row,]$U_Italian <- mean(sub_new_reviews$Italian)
+    new_reviews[row,]$U_Middle_Eastern <- mean(sub_new_reviews$Middle_Eastern)
+    new_reviews[row,]$U_Latin_American <- mean(sub_new_reviews$Latin_American)
+    new_reviews[row,]$U_Mediterranean <- mean(sub_new_reviews$Mediterranean)
+    new_reviews[row,]$U_European <- mean(sub_new_reviews$European)
+    new_reviews[row,]$U_Fastfood <- mean(sub_new_reviews$Fastfood)
+    new_reviews[row,]$U_Seafood <- mean(sub_new_reviews$Seafood)
+    new_reviews[row,]$U_Pizza <- mean(sub_new_reviews$Pizza)
+    new_reviews[row,]$U_Breakfast <- mean(sub_new_reviews$Breakfast)
+    new_reviews[row,]$U_Cafe <- mean(sub_new_reviews$Cafe)
+    new_reviews[row,]$U_Diners <- mean(sub_new_reviews$Diners)
+    new_reviews[row,]$U_Bars <- mean(sub_new_reviews$Bars)
   }
 
   #perform summary of business id
   sub_new_reviews <- new_reviews[new_reviews$business_id == business_id & new_reviews$review_id != review_id,]
   if (nrow(sub_new_reviews) > 0)
   {  
-    bus_revs <- summaryBy(service_rating+service+speed_rating+speed+cleanliness_rating+cleanliness+taste_rating+taste+environment_rating+environment+location_rating+location ~ business_id, data=sub_new_reviews, FUN=c(mean,sd,length,sum))
-    
-    new_reviews[row,]$B_Service <- bus_revs$service_rating.sum/bus_revs$service.sum
-    new_reviews[row,]$B_Speed <- bus_revs$speed_rating.sum/bus_revs$speed.sum
-    new_reviews[row,]$B_Cleanliness <- bus_revs$cleanliness_rating.sum/bus_revs$cleanliness.sum
-    new_reviews[row,]$B_Taste <- bus_revs$taste_rating.sum/bus_revs$taste.sum
-    new_reviews[row,]$B_Environment <- bus_revs$environment_rating.sum/bus_revs$environment.sum
-    new_reviews[row,]$B_Location <- bus_revs$location_rating.sum/bus_revs$location.sum
+
+    new_reviews[row,]$B_Service <- sum(sub_new_reviews$service_rating)/sum(sub_new_reviews$service)
+    new_reviews[row,]$B_Speed <- sum(sub_new_reviews$speed_rating)/sum(sub_new_reviews$speed)
+    new_reviews[row,]$B_Cleanliness <- sum(sub_new_reviews$cleanliness_rating)/sum(sub_new_reviews$cleanliness)
+    new_reviews[row,]$B_Taste <- sum(sub_new_reviews$taste_rating)/sum(sub_new_reviews$taste)
+    new_reviews[row,]$B_Environment <- sum(sub_new_reviews$environment_rating)/sum(sub_new_reviews$environment)
+    new_reviews[row,]$B_Location <- sum(sub_new_reviews$location_rating)/sum(sub_new_reviews$location)
   }
+  print(row)
 }
 
 
