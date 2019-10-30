@@ -3,7 +3,14 @@ library(ROCR)
 library(nnet)
 library("neuralnet")
 
-review_analysis_data2 <- subset(review_analysis_data,select= -c(user_id,business_id))
+review_analysis_data2 <- subset(review_analysis_data,select= c(Like_Restaurant,U_service,U_environment,U_Mexican,U_Middle_Eastern,U_European
+                                                               ,U_Cafe,U_speed,U_location,U_Indian,U_Latin_American,U_Fastfood,U_Diners
+                                                               ,U_cleanliness,U_Eastern_Asian,U_Southeast_Asian,U_Mediterranean,U_Seafood
+                                                               ,U_Bars,U_taste,U_Japanese,U_American,U_Italian,U_Pizza,U_Breakfast
+                                                               ,Mexican,Middle_Eastern,European,Cafe,Indian,Latin_American,Fastfood,Diners
+                                                               ,Eastern_Asian,Southeast_Asian,Mediterranean,Seafood
+                                                               ,Bars,Japanese,American,Italian,Pizza,Breakfast
+                                                               ,B_Service,B_Speed,B_Cleanliness,B_Taste,B_Environment,B_Location))
 review_analysis_data2 <- na.omit(review_analysis_data2)
 
 smp_size <- floor(0.75 *nrow(review_analysis_data2))
@@ -45,14 +52,5 @@ mean(multinom_pred_test == test$Like_Restaurant)
 (f = 2*precision*recall/(precision+recall))
 (specificity <- confusion_matrix[1,1]/sum(confusion_matrix[1,]))
 
-#Neural Network
-review_analysis_data2_pp <- preProcess(review_analysis_data2, method = c("range"))
-train_pp <- predict(review_analysis_data2_pp, train)
-test_pp <- predict(review_analysis_data2_pp, test)
-
-n <- names(review_analysis_data2)
-f <- as.formula(paste("Like_Restaurant ~", paste(n[!n %in% c("Like_Restaurant")], collapse = " + ")))
-nn_model <- neuralnet(formula = f , data=train_pp, hidden=1)
-summary(nn_model)
 
 #Decision Tree
